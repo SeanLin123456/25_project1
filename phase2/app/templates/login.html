@@ -20,5 +20,90 @@
 
     <br>
     <a href="/register">No account? Register</a>
+    <hr>
+    <h2>Phase 3: WebAuthn Login (Passkey)</h2>
+    <label>Username for WebAuthn:</label>
+    <input type="text" id="wa-login-username" required>
+    <button onclick="loginWebAuthn()">Login with Passkey</button>
+
+    <script>
+        function bufferDecode(value) {
+            const base64 = value.replace(/-/g, '+').replace(/_/g, '/');
+            const binary = atob(base64);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) { bytes[i] = binary.charCodeAt(i); }
+            return bytes;
+        }
+
+        function bufferEncode(value) {
+            const bytes = new Uint8Array(value);
+            let binary = '';
+            for (let i = 0; i < bytes.byteLength; i++) { binary += String.fromCharCode(bytes[i]); }
+            return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+        }
+
+        async function loginWebAuthn() {
+            const username = document.getElementById('wa-login-username').value;
+            if (!username) {
+                alert("Please enter your username first.");
+                return;
+            }
+
+            try {
+                const optResponse = await fetch('/webauthn/login/options', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: username })
+                });
+                
+                if (!optResponse.ok) {
+                    const errorMsg = await optResponse.json();
+                    throw new Error(errorMsg.detail);
+                }
+                const options = await optResponse.json();
+
+                options.challenge = bufferDecode(options.challenge);
+                if (options.allowCredentials) {
+                    options.allowCredentials.forEach(cred => {
+                        cred.id = bufferDecode(cred.id);
+                    });
+                }
+
+                const credential = await navigator.credentials.get({
+                    publicKey: options
+                });
+
+                const verificationResp = {
+                    id: credential.id,
+                    rawId: bufferEncode(credential.rawId),
+                    type: credential.type,
+                    response: {
+                        authenticatorData: bufferEncode(credential.response.authenticatorData),
+                        clientDataJSON: bufferEncode(credential.response.clientDataJSON),
+                        signature: bufferEncode(credential.response.signature),
+                        userHandle: credential.response.userHandle ? bufferEncode(credential.response.userHandle) : null,
+                    },
+                    username: username
+                };
+
+                const verifyResponse = await fetch('/webauthn/login/verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(verificationResp)
+                });
+
+                const result = await verifyResponse.json();
+                if (verifyResponse.ok) {
+                    alert(result.message);
+                } else {
+                    alert("Login Failed: " + result.detail);
+                }
+
+            } catch (error) {
+                console.error(error);
+                alert("Login Error: " + error.message);
+            }
+        }
+    </script>
 </body>
 </html>
