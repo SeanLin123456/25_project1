@@ -6,7 +6,7 @@ We strictly followed the project specifications. No additional packages or setup
 Please start the Docker environment using the standard command:
 
 ```bash
-cd project1
+cd 25_project1
 docker compose up --build -d
 ```
 
